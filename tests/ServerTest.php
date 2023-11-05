@@ -34,7 +34,7 @@ class ServerTest extends TestCase
         $handle1 = $socket->getHandle();
 
         $server = new Server();
-        
+
         $client1 = $server->newClient($socket);
         $client2 = $server->getClientByHandle($handle1);
         $this->assertEquals($client1, $client2);
@@ -224,7 +224,7 @@ class ServerTest extends TestCase
     public function testGetNextMsgId()
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
@@ -270,13 +270,13 @@ class ServerTest extends TestCase
     public function testGetMsgSeqById()
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-        
+
         $message = new Message();
         $message->addFrom('dev1@fox21.at');
         $message->addTo('dev2@fox21.at');
@@ -317,7 +317,7 @@ class ServerTest extends TestCase
     public function testGetMsgIdBySeq()
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
@@ -386,7 +386,7 @@ class ServerTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
         $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
@@ -506,7 +506,7 @@ class ServerTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
         $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
@@ -584,7 +584,7 @@ class ServerTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
         $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
@@ -664,7 +664,7 @@ class ServerTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
         $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
@@ -742,7 +742,7 @@ class ServerTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
         $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
@@ -818,7 +818,7 @@ class ServerTest extends TestCase
     public function testGetMail()
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
@@ -857,7 +857,7 @@ class ServerTest extends TestCase
     public function testEvent()
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
@@ -876,7 +876,10 @@ class ServerTest extends TestCase
         });
         $server->addEvent($event1);
 
-        $event2 = new Event(Event::TRIGGER_MAIL_ADD_PRE, $this, 'functionForTestEvent');
+        $event2 = new Event(Event::TRIGGER_MAIL_ADD_PRE, $this, function () {
+            return $this->functionForTestEvent();
+        });
+
         $server->addEvent($event2);
 
         $event3 = new Event(Event::TRIGGER_MAIL_ADD, null, function ($event, $mail) use ($phpunit) {
@@ -890,12 +893,13 @@ class ServerTest extends TestCase
         });
         $server->addEvent($event4);
 
+        $message = (new Message())
+            ->addFrom('dev1@fox21.at')
+            ->addTo('dev2@fox21.at')
+            ->setSubject('my_subject 1')
+            ->setBody('my_body')
+        ;
 
-        $message = new Message();
-        $message->addFrom('dev1@fox21.at');
-        $message->addTo('dev2@fox21.at');
-        $message->setSubject('my_subject 1');
-        $message->setBody('my_body');
         $server->addMail($message);
 
         $this->assertEquals(24, $testData);

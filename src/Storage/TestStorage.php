@@ -6,15 +6,12 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class TestStorage extends AbstractStorage
 {
-    /**
-     * @return string
-     */
     public function getDirectorySeperator(): string
     {
         return '_';
     }
 
-    public function setPath(string $path)
+    public function setPath(string $path): static
     {
         parent::setPath($path);
 
@@ -22,6 +19,8 @@ class TestStorage extends AbstractStorage
             $filesystem = new Filesystem();
             $filesystem->mkdir($this->getPath(), 0755);
         }
+
+        return $this;
     }
 
     public function createFolder(string $folder): bool
@@ -49,17 +48,11 @@ class TestStorage extends AbstractStorage
         return 0;
     }
 
-    public function removeMail(int $msgId)
-    {
-    }
+    public function removeMail(int $msgId) {}
 
-    public function copyMailById(int $msgId, string $folder)
-    {
-    }
+    public function copyMailById(int $msgId, string $folder) {}
 
-    public function copyMailBySequenceNum(int $seqNum, string $folder, string $dstFolder)
-    {
-    }
+    public function copyMailBySequenceNum(int $seqNum, string $folder, string $dstFolder) {}
 
     public function getPlainMailById(int $msgId): string
     {
@@ -86,18 +79,14 @@ class TestStorage extends AbstractStorage
         return [];
     }
 
-    public function setFlagsById(int $msgId, array $flags)
-    {
-    }
+    public function setFlagsById(int $msgId, array $flags) {}
 
     public function getFlagsBySeq(int $seqNum, string $folder): array
     {
         return [];
     }
 
-    public function setFlagsBySeq(int $seqNum, string $folder, array $flags)
-    {
-    }
+    public function setFlagsBySeq(int $seqNum, string $folder, array $flags) {}
 
     public function getNextMsgId(): int
     {

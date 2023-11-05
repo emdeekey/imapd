@@ -104,17 +104,9 @@ class MessageDatabase extends YamlStorage
         return 0;
     }
 
-    /**
-     * @param int $msgId
-     * @return null|Message
-     */
-    public function getMsgById(int $msgId)
+    public function getMsgById(int $msgId): ?Message
     {
-        if (isset($this->data['msgs'][$msgId])) {
-            return $this->data['msgs'][$msgId];
-        }
-
-        return null;
+        return $this->data['msgs'][$msgId] ?? null;
     }
 
     /**
@@ -127,14 +119,14 @@ class MessageDatabase extends YamlStorage
 
         /**
          * @var int $msgId
-         * @var array $msg
+         * @var array<mixed> $msg
          */
         foreach ($this->data['msgs'] as $msgId => $msg) {
             /** @var bool $recent */
-            $recent = $msg['recent'];
+            $recent = $msg['recent'] ?? false;
 
             /** @var array $msgFlags */
-            $msgFlags = $msg['flags'];
+            $msgFlags = $msg['flags'] ?? [];
 
             foreach ($flags as $flag) {
                 if (in_array($flag, $msgFlags)
@@ -150,35 +142,32 @@ class MessageDatabase extends YamlStorage
     }
 
     /**
-     * @param int $msgId
-     * @return array
+     * @return array<mixed>
      */
     public function getFlagsById(int $msgId): array
     {
-        if (isset($this->data['msgs'][$msgId])) {
-            /** @var array $msg */
-            $msg = $this->data['msgs'][$msgId];
-
-            /** @var array $flags */
-            $flags = $msg['flags'];
-
-            /** @var bool $recent */
-            $recent = $msg['recent'];
-
-            if ($recent) {
-                $flags[] = Storage::FLAG_RECENT;
-            }
-            return $flags;
+        $msg = $this->data['msgs'][$msgId] ?? null;
+        if (!$msg) {
+            return [];
         }
 
-        return [];
+        /** @var array $flags */
+        $flags = $msg['flags'] ?? [];
+
+        /** @var bool $recent */
+        $recent = $msg['recent'] ?? false ;
+
+        if ($recent) {
+            $flags[] = Storage::FLAG_RECENT;
+        }
+
+        return $flags;
     }
 
     /**
-     * @param int $msgId
-     * @param array $flags
+     * @param array<mixed> $flags
      */
-    public function setFlagsById(int $msgId, array $flags)
+    public function setFlagsById(int $msgId, array $flags): static
     {
         $flags = array_unique($flags);
         if (($key = array_search(Storage::FLAG_RECENT, $flags)) !== false) {
@@ -194,13 +183,15 @@ class MessageDatabase extends YamlStorage
 
             $this->setDataChanged(true);
         }
+
+        return $this;
     }
 
     /**
      * @param int $msgId
      * @param string $path
      */
-    public function setPathById(int $msgId, string $path)
+    public function setPathById(int $msgId, string $path): static
     {
         if (isset($this->data['msgs'][$msgId])) {
             unset($this->msgsByPath[$this->data['msgs'][$msgId]['path']]);
@@ -210,6 +201,8 @@ class MessageDatabase extends YamlStorage
 
             $this->setDataChanged(true);
         }
+
+        return $this;
     }
 
     /**
@@ -217,6 +210,6 @@ class MessageDatabase extends YamlStorage
      */
     public function getNextId(): int
     {
-        return $this->data['msgsId'] + 1;
+        return ($this->data['msgsId'] ?? 0) + 1;
     }
 }

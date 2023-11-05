@@ -24,66 +24,46 @@ class Client
 
     const MSG_SEPARATOR = "\r\n";
 
-    /**
-     * @var int
-     */
-    private $id = 0;
+    private int $id = 0;
 
     /**
-     * @var array
+     * @var array<mixed>
      */
-    private $status;
+    private array $status;
+
+    private Server $server;
+
+    private ?AbstractSocket $socket = null;
 
     /**
-     * @var Server
+     * @var array<mixed>
      */
-    private $server;
+    private array $options;
+
+    private string $ip = '';
+
+    private int $port = 0;
+
+    private string $recvBufferTmp = '';
 
     /**
-     * @var AbstractSocket
+     * @var array<mixed>
      */
-    private $socket;
+    private array $expunge = [];
 
     /**
-     * @var array
+     * @var array<mixed>
      */
-    private $options;
-
-    /**
-     * @var string
-     */
-    private $ip = '';
-
-    /**
-     * @var integer
-     */
-    private $port = 0;
-
-    /**
-     * @var string
-     */
-    private $recvBufferTmp = '';
-
-    /**
-     * @var array
-     */
-    private $expunge = [];
-
-    /**
-     * @var array
-     */
-    private $subscriptions = [];
+    private array $subscriptions = [];
 
     /**
      * Remember the selected mailbox for each client.
-     *
-     * @var string
      */
-    private $selectedFolder = '';
+    private string $selectedFolder = '';
 
     /**
      * Client constructor.
-     * @param array $options
+     * @param array<mixed> $options
      */
     public function __construct(array $options = [])
     {
@@ -110,27 +90,19 @@ class Client
         $this->status['appendMsg'] = '';
     }
 
-    /**
-     * @param int $id
-     */
-    public function setId(int $id)
+    public function setId(int $id): static
     {
         $this->id = $id;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @param string $name
-     * @return mixed|null
-     */
-    public function getStatus(string $name)
+    public function getStatus(string $name): mixed
     {
         if (array_key_exists($name, $this->status)) {
             return $this->status[$name];
@@ -139,39 +111,33 @@ class Client
         return null;
     }
 
-    public function setStatus(string $name, $value)
+    public function setStatus(string $name, $value): static
     {
         $this->status[$name] = $value;
+
+        return $this;
     }
 
-    /**
-     * @param Server $server
-     */
-    public function setServer(Server $server)
+    public function setServer(Server $server): static
     {
         $this->server = $server;
+
+        return $this;
     }
 
-    /**
-     * @return Server|null
-     */
-    public function getServer()
+    public function getServer(): ?Server
     {
         return $this->server;
     }
 
-    /**
-     * @param AbstractSocket $socket
-     */
-    public function setSocket(AbstractSocket $socket)
+    public function setSocket(AbstractSocket $socket): static
     {
         $this->socket = $socket;
+
+        return $this;
     }
 
-    /**
-     * @return AbstractSocket
-     */
-    public function getSocket()
+    public function getSocket(): ?AbstractSocket
     {
         return $this->socket;
     }
@@ -179,9 +145,11 @@ class Client
     /**
      * @param string $ip
      */
-    public function setIp(string $ip)
+    public function setIp(string $ip): static
     {
         $this->ip = $ip;
+
+        return $this;
     }
 
     /**
@@ -195,17 +163,13 @@ class Client
         return $this->ip;
     }
 
-    /**
-     * @param int $port
-     */
-    public function setPort(int $port)
+    public function setPort(int $port): static
     {
         $this->port = $port;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getPort(): int
     {
         if (!$this->port) {
@@ -214,43 +178,31 @@ class Client
         return $this->port;
     }
 
-    /**
-     * @param string $ip
-     * @param int $port
-     */
-    public function setIpPort(string $ip = '', int $port = 0)
+    public function setIpPort(string $ip = '', int $port = 0): static
     {
         $socket = $this->getSocket();
+
         if ($socket) {
             $socket->getPeerName($ip, $port);
         }
 
-        $this->setIp($ip);
-        $this->setPort($port);
+        return $this
+            ->setIp($ip)
+            ->setPort($port)
+            ;
     }
 
-    /**
-     * @return string
-     */
     public function getIpPort(): string
     {
         return $this->getIp() . ':' . $this->getPort();
     }
 
-    /**
-     * @param string $level
-     * @param string $msg
-     * @deprecated
-     */
-    private function log(string $level, string $msg)
+
+    public function run(): void
     {
     }
 
-    public function run()
-    {
-    }
-
-    public function dataRecv()
+    public function dataRecv(): void
     {
         $data = $this->getSocket()->read();
 
@@ -273,11 +225,9 @@ class Client
     }
 
     /**
-     * @param string $msgRaw
-     * @param int|null $argsMax
-     * @return array
+     * @return array<mixed>
      */
-    public function parseMsgString(string $msgRaw, int $argsMax = null): array
+    public function parseMsgString(string $msgRaw, ?int $argsMax = null): array
     {
         $str = new StringParser($msgRaw, $argsMax);
         $args = $str->parse();
@@ -285,9 +235,7 @@ class Client
     }
 
     /**
-     * @param string $msgRaw
-     * @param int|null $argsMax
-     * @return array
+     * @return array<mixed>
      */
     public function getMessageArguments(string $msgRaw, int $argsMax = null): array
     {
@@ -304,9 +252,7 @@ class Client
     }
 
     /**
-     * @param string $msgRaw
-     * @param int $level
-     * @return array
+     * @return array<mixed>
      */
     public function getParenthesizedMessageList(string $msgRaw, int $level = 0): array
     {
@@ -371,11 +317,9 @@ class Client
     }
 
     /**
-     * @param string $setStr
-     * @param bool $isUid
      * @return int[]
      */
-    public function createSequenceSet(string $setStr, $isUid = false): array
+    public function createSequenceSet(string $setStr, bool $isUid = false): array
     {
         // Collect messages with sequence-sets.
         $setStr = trim($setStr);
@@ -483,10 +427,6 @@ class Client
         return $msgSeqNums;
     }
 
-    /**
-     * @param string $msgRaw
-     * @return string
-     */
     public function handleRawPacket(string $msgRaw): string
     {
         $this->logger->debug('client ' . $this->id . ' raw: /' . $msgRaw . '/');
@@ -798,10 +738,6 @@ class Client
         return '';
     }
 
-    /**
-     * @param string $msg
-     * @return string
-     */
     public function sendData(string $msg): string
     {
         $output = $msg . static::MSG_SEPARATOR;
@@ -821,16 +757,12 @@ class Client
         return $output;
     }
 
-    public function sendHello()
+    public function sendHello(): void
     {
         $this->sendOk('IMAP4rev1 Service Ready');
     }
 
-    /**
-     * @param string $tag
-     * @return string
-     */
-    private function sendCapability(string $tag)
+    private function sendCapability(string $tag): string
     {
         $rv = $this->sendData('* CAPABILITY IMAP4rev1 AUTH=PLAIN');
         $rv .= $this->sendOk('CAPABILITY completed', $tag);
@@ -838,10 +770,6 @@ class Client
         return $rv;
     }
 
-    /**
-     * @param string $tag
-     * @return string
-     */
     private function sendNoop(string $tag): string
     {
         if ($this->selectedFolder) {
@@ -850,18 +778,11 @@ class Client
         return $this->sendOk('NOOP completed client ' . $this->getId() . ', "' . $this->selectedFolder . '"', $tag);
     }
 
-    /**
-     * @param string $tag
-     * @return string
-     */
     private function sendLogout(string $tag): string
     {
         return $this->sendOk('LOGOUT completed', $tag);
     }
 
-    /**
-     * @return string
-     */
     private function sendAuthenticate(): string
     {
         if ($this->getStatus('authStep') == 1) {
@@ -877,18 +798,11 @@ class Client
         return '';
     }
 
-    /**
-     * @param string $tag
-     * @return string
-     */
     private function sendLogin(string $tag): string
     {
         return $this->sendOk('LOGIN completed', $tag);
     }
 
-    /**
-     * @return string
-     */
     private function sendSelectedFolderInfos(): string
     {
         $nextId = $this->getServer()->getNextMsgId();
@@ -898,7 +812,7 @@ class Client
         $firstUnseen = 0;
         for ($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++) {
             $flags = $this->getServer()->getFlagsBySeq($msgSeqNum, $this->selectedFolder);
-            if (!in_array(Storage::FLAG_SEEN, $flags) && !$firstUnseen) {
+            if (!in_array(Storage::FLAG_SEEN, $flags) && $firstUnseen === 0) {
                 $firstUnseen = $msgSeqNum;
                 break;
             }
@@ -933,11 +847,6 @@ class Client
         return $rv;
     }
 
-    /**
-     * @param string $tag
-     * @param string $folder
-     * @return string
-     */
     private function sendSelect(string $tag, string $folder): string
     {
         if (strtolower($folder) == 'inbox' && $folder != 'INBOX') {
@@ -955,11 +864,6 @@ class Client
         return $this->sendNo('"' . $folder . '" no such mailbox', $tag);
     }
 
-    /**
-     * @param string $tag
-     * @param string $folder
-     * @return string
-     */
     private function sendCreate(string $tag, string $folder): string
     {
         if (strpos($folder, '/') !== false) {
@@ -975,11 +879,6 @@ class Client
         return $this->sendNo('CREATE failure: folder already exists', $tag);
     }
 
-    /**
-     * @param string $tag
-     * @param string $folder
-     * @return string
-     */
     private function sendSubscribe(string $tag, string $folder): string
     {
         if ($this->getServer()->folderExists($folder)) {
@@ -996,11 +895,6 @@ class Client
         return $this->sendNo('SUBSCRIBE failure: no subfolder named test_dir', $tag);
     }
 
-    /**
-     * @param string $tag
-     * @param string $folder
-     * @return string
-     */
     private function sendUnsubscribe(string $tag, string $folder): string
     {
         if ($this->getServer()->folderExists($folder)) {
@@ -1015,12 +909,6 @@ class Client
         return $this->sendNo('UNSUBSCRIBE failure: no subfolder named test_dir', $tag);
     }
 
-    /**
-     * @param string $tag
-     * @param string $baseFolder
-     * @param string $folder
-     * @return string
-     */
     private function sendList(string $tag, string $baseFolder, string $folder): string
     {
         $this->logger->debug('client ' . $this->id . ' list: /' . $baseFolder . '/ /' . $folder . '/');
@@ -1044,10 +932,6 @@ class Client
         return $rv;
     }
 
-    /**
-     * @param string $tag
-     * @return string
-     */
     private function sendLsub(string $tag): string
     {
         $rv = '';
@@ -1060,10 +944,6 @@ class Client
         return $rv;
     }
 
-    /**
-     * @param string $data
-     * @return string
-     */
     private function sendAppend(string $data = ''): string
     {
         $appendMsgLen = strlen($this->getStatus('appendMsg'));
@@ -1113,10 +993,6 @@ class Client
         return '';
     }
 
-    /**
-     * @param string $tag
-     * @return string
-     */
     private function sendCheck(string $tag): string
     {
         if ($this->selectedFolder) {
@@ -1126,10 +1002,6 @@ class Client
         }
     }
 
-    /**
-     * @param string $tag
-     * @return string
-     */
     private function sendClose(string $tag): string
     {
         $this->logger->debug('client ' . $this->id . ' current folder: ' . $this->selectedFolder);
@@ -1142,7 +1014,7 @@ class Client
     }
 
     /**
-     * @return array
+     * @return array<mixed>
      */
     private function sendExpungeRaw(): array
     {
@@ -1172,10 +1044,6 @@ class Client
         return $msgSeqNumsExpunge;
     }
 
-    /**
-     * @param string $tag
-     * @return string
-     */
     private function sendExpunge(string $tag): string
     {
         $rv = '';
@@ -1193,12 +1061,8 @@ class Client
     }
 
     /**
-     * @param array $list
-     * @param int $posOffset
-     * @param int $maxItems
-     * @param bool $addAnd
-     * @param int $level
-     * @return array
+     * @param array<mixed> $list
+     * @return array<mixed>
      */
     public function parseSearchKeys(
         array $list,
@@ -1318,13 +1182,6 @@ class Client
         return $rv;
     }
 
-    /**
-     * @param Message $message
-     * @param int $messageSeqNum
-     * @param int $messageUid
-     * @param string $searchKey
-     * @return bool
-     */
     public function searchMessageCondition(
         Message $message,
         int $messageSeqNum,
@@ -1360,7 +1217,7 @@ class Client
 
             case 'body':
                 $searchStr = strtolower($items[1]);
-                return strpos(strtolower($message->getBody()), $searchStr) !== false;
+                return strpos(strtolower((string) $message->getBody()), $searchStr) !== false;
 
             case 'cc':
                 $searchStr = strtolower($items[1]);
@@ -1403,7 +1260,7 @@ class Client
                 break;
 
             case 'larger':
-                return strlen($message->getBody()) > (int)$items[1];
+                return strlen((string) $message->getBody()) > (int)$items[1];
 
             case 'new':
                 return in_array(Storage::FLAG_RECENT, $flags) && !in_array(Storage::FLAG_SEEN, $flags);
@@ -1442,7 +1299,7 @@ class Client
                 break;
 
             case 'smaller':
-                return strlen($message->getBody()) < (int)$items[1];
+                return strlen((string) $message->getBody()) < (int)$items[1];
 
             case 'subject':
                 if (isset($items[2])) {
@@ -1454,7 +1311,7 @@ class Client
 
             case 'text':
                 $searchStr = strtolower($items[1]);
-                return strpos(strtolower($message->getBody()), $searchStr) !== false;
+                return strpos(strtolower((string) $message->getBody()), $searchStr) !== false;
 
             case 'to':
                 $searchStr = strtolower($items[1]);
@@ -1520,9 +1377,9 @@ class Client
         $subgates = [];
 
         if ($gate instanceof Gate) {
-            if ($gate->getObj1()) {
-                $subgates[] = $gate->getObj1();
-            }
+
+            $subgates[] = $gate->getObj1();
+
             if ($gate->getObj2()) {
                 $subgates[] = $gate->getObj2();
             }
@@ -1618,20 +1475,13 @@ class Client
         return $rv;
     }
 
-    /**
-     * @param string $tag
-     * @param string $seq
-     * @param string $name
-     * @param bool $isUid
-     * @return string
-     */
     private function sendFetchRaw(string $tag, string $seq, string $name, bool $isUid = false): string
     {
         $msgItems = [];
         if ($isUid) {
             $msgItems['uid'] = '';
         }
-        if (isset($name)) {
+        if ($name !== "") {
             $wanted = $this->getParenthesizedMessageList($name);
             foreach ($wanted as $n => $item) {
                 if (is_string($item)) {
@@ -1948,42 +1798,29 @@ class Client
         return $this->sendData($tag . ' BAD' . ($code ? ' [' . $code . ']' : '') . ' ' . $text);
     }
 
-    /**
-     * @param string $text
-     * @param string|null $code
-     * @return string
-     */
-    public function sendPreauth(string $text, string $code = null): string
+    public function sendPreauth(string $text, ?string $code = null): string
     {
         return $this->sendData('* PREAUTH' . ($code ? ' [' . $code . ']' : '') . ' ' . $text);
     }
 
-    /**
-     * @param string $text
-     * @param string|null $code
-     * @return string
-     */
-    public function sendBye(string $text, string $code = null): string
+    public function sendBye(string $text, ?string $code = null): string
     {
         return $this->sendData('* BYE' . ($code ? ' [' . $code . ']' : '') . ' ' . $text);
     }
 
-    public function shutdown()
+    public function shutdown(): void
     {
         if (!$this->getStatus('hasShutdown')) {
             $this->setStatus('hasShutdown', true);
 
-            if ($this->getSocket()) {
-                $this->getSocket()->shutdown();
-                $this->getSocket()->close();
+            $socket = $this->getSocket();
+            if ($socket) {
+                $socket->shutdown();
+                $socket->close();
             }
         }
     }
 
-    /**
-     * @param string $folder
-     * @return bool
-     */
     public function select(string $folder): bool
     {
         if ($this->getServer()->folderExists($folder)) {
@@ -1999,9 +1836,6 @@ class Client
         return false;
     }
 
-    /**
-     * @return string
-     */
     public function getSelectedFolder(): string
     {
         return $this->selectedFolder;

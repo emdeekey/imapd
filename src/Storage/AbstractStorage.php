@@ -6,110 +6,72 @@ use TheFox\Storage\YamlStorage;
 
 abstract class AbstractStorage
 {
-    /**
-     * @var string
-     */
-    private $path;
+    private string $path;
 
-    /**
-     * @var int
-     */
-    private $pathLen;
+    private int $pathLen;
 
-    /**
-     * @var string
-     */
-    private $dbPath;
+    private string $dbPath;
 
-    /**
-     * @var YamlStorage
-     */
-    private $db;
+    private ?YamlStorage $db = null;
 
-    /**
-     * @var string
-     */
-    private $type = 'normal';
+    private string $type = 'normal';
 
     abstract protected function getDirectorySeperator(): string;
 
-    /**
-     * @param string $path
-     */
-    public function setPath(string $path)
+    public function setPath(string $path): static
     {
         $this->path = $path;
         $this->pathLen = strlen($this->path);
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getPath(): string
     {
         return $this->path;
     }
 
-    /**
-     * @return int
-     */
     public function getPathLen(): int
     {
         return $this->pathLen;
     }
 
-    /**
-     * @param string $dbPath
-     */
-    public function setDbPath(string $dbPath)
+    public function setDbPath(string $dbPath): static
     {
         $this->dbPath = $dbPath;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getDbPath(): string
     {
         return $this->dbPath;
     }
 
-    /**
-     * @param YamlStorage $db
-     */
-    public function setDb(YamlStorage $db)
+    public function setDb(YamlStorage $db): static
     {
         $this->db = $db;
+
+        return $this;
     }
 
-    /**
-     * @return YamlStorage|null
-     */
-    public function getDb()
+    public function getDb(): ?YamlStorage
     {
         return $this->db;
     }
 
-    /**
-     * @param string $type
-     */
-    public function setType(string $type)
+    public function setType(string $type): static
     {
         $this->type = $type;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @param string $path
-     * @return string
-     */
     public function genFolderPath(string $path): string
     {
         if ($path == 'INBOX') {
