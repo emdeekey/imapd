@@ -81,13 +81,14 @@ class Server extends Thread
     }
 
     /**
-     * @return bool
-     * @throws Exception
+     * @param array<mixed> $contextOptions 
+     * @return bool 
+     * @throws Exception 
      */
-    public function listen(): bool
+    public function listen($contextOptions = []): bool
     {
         try {
-            $this->socket->listen();
+            $this->socket->listen($contextOptions);
             $this->logger->notice('listen ok');
 
             $this->isListening = true;
